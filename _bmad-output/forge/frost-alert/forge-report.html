@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Forge Report — Frost Alert for Overwintering Bonsai</title>
+<style>
+  :root {
+    --ink: #1b1f23;
+    --paper: #faf7f0;
+    --accent: #2f6f4f;
+    --accent-dark: #1e4a34;
+    --crack: #a4432c;
+    --border: #d8cfb8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: linear-gradient(180deg, #eef1e9 0%, #e4e9dd 100%);
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--ink);
+    padding: 40px 16px;
+  }
+  .sheet {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 48px 56px 56px;
+    position: relative;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 4px;
+    color: var(--accent-dark);
+  }
+  .subtitle {
+    font-style: italic;
+    color: #555;
+    margin-bottom: 28px;
+  }
+  .seal-wrap {
+    position: absolute;
+    top: 36px;
+    right: 40px;
+    text-align: center;
+  }
+  h2 {
+    font-size: 17px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 6px;
+    margin-top: 34px;
+    color: var(--accent-dark);
+  }
+  ul { padding-left: 22px; }
+  li { margin-bottom: 9px; line-height: 1.45; }
+  .voice {
+    font-weight: bold;
+    color: var(--accent-dark);
+  }
+  .weak li { color: var(--crack); }
+  .weak .voice { color: var(--crack); }
+  .cast {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .cast span {
+    background: #eef1e9;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 14px;
+    font-style: normal;
+  }
+  footer {
+    margin-top: 40px;
+    font-size: 13px;
+    color: #777;
+    border-top: 1px dashed var(--border);
+    padding-top: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="seal-wrap">
+    <svg width="130" height="130" viewBox="0 0 130 130">
+      <circle cx="65" cy="65" r="58" fill="none" stroke="#2f6f4f" stroke-width="3"/>
+      <circle cx="65" cy="65" r="48" fill="none" stroke="#2f6f4f" stroke-width="1.5" stroke-dasharray="3,4"/>
+      <text x="65" y="55" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#1e4a34" transform="rotate(0 65 65)">HARDENED</text>
+      <text x="65" y="72" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="#1e4a34">FORGE OF IDEAS</text>
+      <path d="M40 90 Q65 100 90 90" stroke="#2f6f4f" stroke-width="2" fill="none"/>
+      <text x="65" y="46" text-anchor="middle" font-size="16" fill="#2f6f4f">❆</text>
+    </svg>
+  </div>
+
+  <h1>Frost Alert for Overwintering Bonsai</h1>
+  <div class="subtitle">Forge session outcome — Idea: HARDENED</div>
+
+  <h2>Outcome</h2>
+  <ul>
+    <li>Started as a half-formed idea ("notify me before it freezes") with one hard constraint stated up front (no phone app) that turned out to be softer than it first appeared, and several hidden forks (scope, trigger model, acknowledgment semantics, hosting) that could each have quietly broken the build later.</li>
+    <li>Ended with a scoped, buildable shape: a personal, config-driven automation with a forecast-based escalating alert model, a seasonal acknowledgment toggle, and hosting/channel requirements clear enough to hand to research.</li>
+  </ul>
+
+  <h2>Locked decisions</h2>
+  <ul>
+    <li><span class="voice">Scope:</span> Personal automation, easy config for others — not a hosted multi-user service.</li>
+    <li><span class="voice">Constraint, corrected:</span> "No app" means no custom-built native app — installing an existing app (WhatsApp, Telegram, Pushover…) to receive alerts is fine.</li>
+    <li><span class="voice">Trigger:</span> Forecast-based, not live-reading-based, with escalating re-checks as a cold night approaches (24h → 12h → shorter).</li>
+    <li><span class="voice">Acknowledgment:</span> "Moved to overwintering" is a one-time seasonal toggle, not a nightly snooze.</li>
+    <li><span class="voice">Hosting:</span> Must not depend on a personal always-on device; run on a $0 (or cheapest-viable) scheduler.</li>
+    <li><span class="voice">Threshold:</span> User-set number, not hardcoded to 0°C — default carries a safety margin for forecast error and radiative frost.</li>
+  </ul>
+
+  <h2>Rejected along the way</h2>
+  <ul>
+    <li>Hosted multi-user product — explicitly not wanted; no accounts, no handling others' data.</li>
+    <li>Native Android/macOS app as the delivery mechanism — not a device restriction, a build-effort decision.</li>
+    <li>Live-temperature trigger — gives no lead time to act.</li>
+    <li>Nightly snooze acknowledgment — doesn't match how bonsai overwintering actually works.</li>
+    <li>Hardcoded 0°C threshold — real risk starts above literal freezing.</li>
+  </ul>
+
+  <h2 style="border-bottom-color: var(--crack); color: var(--crack);">Weak points that survived scrutiny</h2>
+  <ul class="weak">
+    <li><span class="voice">Escalation cadence:</span> exact steps between 24h and the final warning are still undecided.</li>
+    <li><span class="voice">Channel shortlist:</span> narrowed by the two-way-acknowledgment requirement, but not yet chosen.</li>
+    <li><span class="voice">Location input:</span> how a friend specifies "where I am" is still open.</li>
+    <li><span class="voice">Message content:</span> what the alert actually says was flagged by the user as unresolved.</li>
+  </ul>
+
+  <h2>Cast that pressure-tested this idea</h2>
+  <div class="cast">
+    <span>📋 John — Product Manager</span>
+    <span>🌲 Frida — Plant-hobbyist maker (generated)</span>
+    <span>🏗️ Winston — System Architect</span>
+    <span>📱 Marek — Corporate IT admin (generated)</span>
+    <span>📊 Mary — Business Analyst</span>
+    <span>🌳 Kenji — Veteran bonsai grower (generated)</span>
+    <span>📏 Level — Claim Checker</span>
+    <span>🎨 Sally — UX Designer</span>
+    <span>🚢 Dana — The Pragmatist</span>
+    <span>🖥️ Ravi — SRE (generated)</span>
+  </div>
+
+  <footer>
+    Forge session · Frost-alert project · Workspace: <code>_bmad-output/forge/frost-alert/</code><br>
+    Distilled to <code>forged-idea.md</code>, including a ready-to-paste research brief for weather API, notification channel, and hosting options.
+  </footer>
+
+</div>
+</body>
+</html>

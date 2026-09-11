@@ -1,0 +1,11 @@
+[
+  {"claim": "GitHub Actions schedule: supports multiple entries per workflow with IANA timezones, min interval 5 min", "class": "version-compat", "pub_date": "2026-09"},
+  {"claim": "GitHub Free private-repo schedule restriction requires public repo or Pro", "class": "pricing", "pub_date": "2026-09"},
+  {"claim": "Vercel Hobby cron capped at once/day with +-59min precision", "class": "pricing", "pub_date": "2026-09"},
+  {"claim": "AWS restructured Free Tier July 2025", "class": "pricing", "pub_date": "2025-07"},
+  {"claim": "Cloudflare Workers Cron Triggers have no automatic retry on failed scheduled() handler", "class": "reliability", "pub_date": "2026"},
+  {"claim": "GitHub Actions scheduled workflow delay measured rising from ~1h40m to 4h30m+", "class": "reliability", "pub_date": "2026-06"},
+  {"claim": "Cloudflare Workers Cron Triggers status-page incident 2026-09-09", "class": "reliability", "pub_date": "2026-09"},
+  {"claim": "Deno.cron is at-least-once, no default retries, requires explicit backoffSchedule", "class": "reliability", "pub_date": "2026-09"},
+  {"claim": "Supabase free-tier projects auto-pause after ~7 days low DB activity", "class": "reliability", "pub_date": "2026-09"}
+]

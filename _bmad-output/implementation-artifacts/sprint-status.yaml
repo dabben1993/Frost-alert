@@ -42,7 +42,7 @@ development_status:
   epic-1-retrospective: done
 
   epic-2: in-progress
-  2-1-classify-frost-risk-and-remaining-time-window: review
+  2-1-classify-frost-risk-and-remaining-time-window: done
   2-2-fetch-hourly-forecast-from-open-meteo: backlog
   2-3-send-a-preview-first-telegram-frost-alert: backlog
   2-4-flip-season-from-telegram: backlog

@@ -20,8 +20,7 @@ Single-user frost-warning automation for overwintering bonsai. CPython 3.13, uv,
 
 ## Running and verifying
 
-- Runtime is CPython 3.13 + uv (decided; `.python-version` and package scripts do not exist yet).
-- TODO: record the exact `uv` test and entrypoint invocations after Story 1.1 lands the package.
+- Runtime is CPython 3.13 + uv. Install and test commands are after this managed block.
 
 ## Conventions that differ from defaults
 
@@ -30,3 +29,8 @@ Single-user frost-warning automation for overwintering bonsai. CPython 3.13, uv,
 - Unit tests use fake ports; no live network in unit tests.
 
 <!-- /bmad:context -->
+
+## Install and test
+
+- Install: `uv sync`
+- Tests: `uv run pytest`

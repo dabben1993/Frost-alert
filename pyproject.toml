@@ -2,7 +2,9 @@
 name = "frost-alert"
 version = "0.1.0"
 requires-python = ">=3.13,<3.14"
-dependencies = []
+dependencies = [
+    "tzdata>=2026.4",
+]
 
 [project.scripts]
 frost-alert = "frost_alert.entrypoints.setup:main"

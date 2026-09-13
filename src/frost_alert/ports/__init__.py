@@ -18,7 +18,7 @@ class Watchdog(Protocol):
 
 
 class ConfigStore(Protocol):
-    pass
+    def write_scale_and_threshold(self, scale: str, threshold_c: float) -> None: ...
 
 
 class StateStore(Protocol):

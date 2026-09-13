@@ -1,8 +1,10 @@
 from typing import Protocol
 
+from frost_alert.domain.classify import ForecastHour
+
 
 class ForecastSource(Protocol):
-    pass
+    def fetch(self, *, lat: float, lon: float) -> list[ForecastHour]: ...
 
 
 class Notifier(Protocol):

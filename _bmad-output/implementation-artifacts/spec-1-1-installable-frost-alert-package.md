@@ -84,7 +84,7 @@ context:
 - Branch `1-1-installable-frost-alert-package` created from `master` at `14d213d`.
 - Hatchling wheel target `packages = ["src/frost_alert"]`; editable `uv sync` imports `frost_alert`.
 - Pytest 9.1.1 on CPython 3.13.13; 6 tests passed. Autouse fixture blocks `socket.socket` / `socket.create_connection`.
-- `AGENTS.md` install/test lines live inside the managed `bmad:context` block (refresh can overwrite).
+- `AGENTS.md` install/test commands sit after `<!-- /bmad:context -->` so a refresh cannot overwrite them.
 
 ## Spec Change Log
 

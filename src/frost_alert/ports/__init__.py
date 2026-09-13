@@ -18,11 +18,21 @@ class Watchdog(Protocol):
 
 
 class ConfigStore(Protocol):
-    def write_scale_and_threshold(self, scale: str, threshold_c: float) -> None: ...
+    def write(
+        self,
+        *,
+        place_name: str,
+        lat: float,
+        lon: float,
+        elevation_m: float,
+        timezone: str,
+        threshold_c: float,
+        scale: str,
+    ) -> None: ...
 
 
 class StateStore(Protocol):
-    pass
+    def load(self) -> dict[str, object]: ...
 
 
 class Clock(Protocol):

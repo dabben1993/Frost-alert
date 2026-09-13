@@ -29,17 +29,17 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 09-13-2026 14:35
-last_updated: 09-13-2026 18:10
+last_updated: 09-13-2026 19:08
 project: Frost-alert
 project_key: NOKEY
 tracking_system: file-system
 story_location: f:\Workspace\Frost-alert\_bmad-output\implementation-artifacts
 development_status:
-  epic-1: in-progress
+  epic-1: done
   1-1-installable-frost-alert-package: done
   1-2-set-scale-and-threshold-through-setup: done
   1-3-set-location-through-geocode-once-setup: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   epic-2: backlog
   2-1-classify-frost-risk-and-remaining-time-window: backlog
@@ -56,3 +56,24 @@ development_status:
   3-4-keep-the-job-healthy-while-the-season-is-suspended: backlog
   3-5-document-how-to-operate-the-watch: backlog
   epic-3-retrospective: optional
+action_items:
+  - id: "epic-1-retro-item-1-reconcile-story-1-2-verification-with-1"
+    epic: 1
+    action: "Reconcile Story 1.2 Verification with 1.3: empty location no longer writes
+      user.json"
+    owner: "Gicki"
+    status: open
+    ref: "f:/Workspace/Frost-alert/_bmad-output/implementation-artifacts/epic-1-retro-2026-09-13.md"
+  - id: "epic-1-retro-item-2-update-epic-1-context-md-so-check-yml-se"
+    epic: 1
+    action: "Update epic-1-context.md so check.yml seed is owned by 3.1 not Epic 1"
+    owner: "Gicki"
+    status: open
+    ref: "f:/Workspace/Frost-alert/_bmad-output/implementation-artifacts/epic-1-retro-2026-09-13.md"
+  - id: "epic-1-retro-item-3-include-the-story-slug-in-feat-commit-su"
+    epic: 1
+    action: "Include the story slug in feat commit subjects so git_evidence can attribute
+      non-merge commits"
+    owner: "Amelia"
+    status: open
+    ref: "f:/Workspace/Frost-alert/_bmad-output/implementation-artifacts/epic-1-retro-2026-09-13.md"

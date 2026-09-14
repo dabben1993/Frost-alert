@@ -46,7 +46,7 @@ development_status:
   2-2-fetch-hourly-forecast-from-open-meteo: done
   2-3-send-a-preview-first-telegram-frost-alert: done
   2-4-flip-season-from-telegram: done
-  2-5-run-a-local-check-tick: review
+  2-5-run-a-local-check-tick: done
   epic-2-retrospective: optional
 
   epic-3: backlog

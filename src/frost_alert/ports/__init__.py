@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Protocol
 
 from frost_alert.domain.classify import Classification, ForecastHour
@@ -40,13 +41,24 @@ class ConfigStore(Protocol):
         scale: str,
     ) -> None: ...
 
+    def load(self) -> dict: ...
+
 
 class StateStore(Protocol):
     def load(self) -> dict[str, object]: ...
 
+    def write(
+        self,
+        *,
+        season: str,
+        event_date: str | None,
+        alerted_windows: list[int],
+        telegram_offset: int,
+    ) -> None: ...
+
 
 class Clock(Protocol):
-    pass
+    def now(self) -> datetime: ...
 
 
 __all__ = [

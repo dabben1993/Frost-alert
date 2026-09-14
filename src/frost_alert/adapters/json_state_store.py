@@ -21,6 +21,25 @@ class JsonStateStore:
             }
         return json.loads(path.read_text(encoding="utf-8"))
 
+    def write(
+        self,
+        *,
+        season: str,
+        event_date: str | None,
+        alerted_windows: list[int],
+        telegram_offset: int,
+    ) -> None:
+        path = self._root / "data" / "state.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "season": season,
+            "event_date": event_date,
+            "alerted_windows": list(alerted_windows),
+            "telegram_offset": telegram_offset,
+            "updated_at": _utc_now_iso(),
+        }
+        path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
 
 def _utc_now_iso() -> str:
     return (

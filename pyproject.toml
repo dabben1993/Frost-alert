@@ -7,7 +7,7 @@ dependencies = [
 ]
 
 [project.scripts]
-frost-alert = "frost_alert.entrypoints.setup:main"
+frost-alert = "frost_alert.entrypoints.cli:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -45,7 +45,7 @@ development_status:
   2-1-classify-frost-risk-and-remaining-time-window: done
   2-2-fetch-hourly-forecast-from-open-meteo: done
   2-3-send-a-preview-first-telegram-frost-alert: done
-  2-4-flip-season-from-telegram: review
+  2-4-flip-season-from-telegram: done
   2-5-run-a-local-check-tick: backlog
   epic-2-retrospective: optional
 

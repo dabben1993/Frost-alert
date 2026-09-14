@@ -41,7 +41,7 @@ development_status:
   1-3-set-location-through-geocode-once-setup: done
   epic-1-retrospective: done
 
-  epic-2: in-progress
+  epic-2: done
   2-1-classify-frost-risk-and-remaining-time-window: done
   2-2-fetch-hourly-forecast-from-open-meteo: done
   2-3-send-a-preview-first-telegram-frost-alert: done

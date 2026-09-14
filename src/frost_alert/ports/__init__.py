@@ -20,7 +20,7 @@ class Notifier(Protocol):
 
 
 class AckInbox(Protocol):
-    pass
+    def poll(self, *, telegram_offset: int) -> tuple[list[str], int]: ...
 
 
 class Watchdog(Protocol):

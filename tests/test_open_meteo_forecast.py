@@ -175,6 +175,22 @@ def test_null_temp_raises_without_dropping_hour(
         _fetch(monkeypatch, _hourly_payload(temps=temps))
 
 
+@pytest.mark.parametrize(
+    "temps",
+    [
+        [float("nan"), 3.0, 2.0],
+        [4.0, float("inf"), 2.0],
+        [4.0, 3.0, float("-inf")],
+    ],
+)
+def test_non_finite_temp_raises(
+    monkeypatch: pytest.MonkeyPatch,
+    temps: list[float],
+) -> None:
+    with pytest.raises(OpenMeteoForecastError):
+        _fetch(monkeypatch, _hourly_payload(temps=temps))
+
+
 def test_unsorted_times_raise(monkeypatch: pytest.MonkeyPatch) -> None:
     with pytest.raises(OpenMeteoForecastError):
         _fetch(

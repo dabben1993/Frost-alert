@@ -4,8 +4,10 @@ import json
 import os
 from collections.abc import Sequence
 
+from frost_alert.adapters.forecast_failover import FailoverForecast
 from frost_alert.adapters.json_config_store import JsonConfigStore
 from frost_alert.adapters.json_state_store import JsonStateStore
+from frost_alert.adapters.met_norway_forecast import MetNorwayForecast
 from frost_alert.adapters.open_meteo_forecast import OpenMeteoForecast
 from frost_alert.adapters.system_clock import SystemClock
 from frost_alert.adapters.telegram_ack_inbox import TelegramAckInbox
@@ -36,7 +38,14 @@ def main(
         state = persist.load()
     except (FileNotFoundError, OSError, json.JSONDecodeError, UnicodeDecodeError):
         return 1
-    source = OpenMeteoForecast() if forecast is None else forecast
+    source = (
+        FailoverForecast(
+            OpenMeteoForecast(),
+            MetNorwayForecast(elevation_m=float(config["elevation_m"])),
+        )
+        if forecast is None
+        else forecast
+    )
     sender = (
         TelegramNotifier(token=token, chat_id=chat_id)
         if notifier is None

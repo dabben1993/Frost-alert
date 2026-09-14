@@ -112,6 +112,17 @@ class FakeAckInbox:
         return list(self._intents), offset
 
 
+class RecordingWatchdog:
+    def __init__(self, error: BaseException | None = None) -> None:
+        self.pings = 0
+        self._error = error
+
+    def ping(self) -> None:
+        self.pings += 1
+        if self._error is not None:
+            raise self._error
+
+
 @pytest.fixture(autouse=True)
 def block_live_network(monkeypatch: pytest.MonkeyPatch) -> None:
     def blocked(*_args: object, **_kwargs: object) -> None:
@@ -172,6 +183,7 @@ def _run_check(
     write_state: bool = False,
     set_secrets: bool = True,
     write_config: bool = True,
+    watchdog: RecordingWatchdog | None = None,
 ) -> tuple[int, dict[str, object] | None]:
     if set_secrets:
         _set_secrets(monkeypatch)
@@ -188,6 +200,7 @@ def _run_check(
             alerted_windows=[] if alerted_windows is None else alerted_windows,
             telegram_offset=telegram_offset,
         )
+    dog = RecordingWatchdog() if watchdog is None else watchdog
     code = check_main(
         ["check"],
         config_store=config_store,
@@ -196,6 +209,7 @@ def _run_check(
         notifier=notifier,
         inbox=inbox,
         clock=FakeClock(GOLDEN_NOW) if clock is None else clock,
+        watchdog=dog,
     )
     path = tmp_path / "data" / "state.json"
     payload = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
@@ -224,12 +238,14 @@ def test_matrix_monitoring_send(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     forecast = FakeForecast(series=[_risk_hour()])
     notifier = RecordingNotifier()
     inbox = FakeAckInbox(intents=[], new_offset=0)
+    watchdog = RecordingWatchdog()
     code, payload = _run_check(
         tmp_path,
         monkeypatch,
         forecast=forecast,
         notifier=notifier,
         inbox=inbox,
+        watchdog=watchdog,
     )
     assert code == 0
     assert forecast.calls == [(LAT, LON)]
@@ -246,6 +262,7 @@ def test_matrix_monitoring_send(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     assert payload["alerted_windows"] == [24]
     assert payload["telegram_offset"] == 0
     assert (tmp_path / "data" / "state.json").is_file()
+    assert watchdog.pings == 1
 
 
 def test_matrix_already_marked_skips_send(
@@ -359,6 +376,7 @@ def test_matrix_notifier_raise_still_polls_and_writes(
     forecast = FakeForecast(series=[_risk_hour()])
     notifier = RecordingNotifier(error=RuntimeError("send failed"))
     inbox = FakeAckInbox(intents=[], new_offset=9)
+    watchdog = RecordingWatchdog()
     code, payload = _run_check(
         tmp_path,
         monkeypatch,
@@ -367,6 +385,7 @@ def test_matrix_notifier_raise_still_polls_and_writes(
         inbox=inbox,
         telegram_offset=8,
         write_state=True,
+        watchdog=watchdog,
     )
     assert code == 0
     assert len(notifier.calls) == 1
@@ -375,6 +394,7 @@ def test_matrix_notifier_raise_still_polls_and_writes(
     assert payload["alerted_windows"] == []
     assert payload["event_date"] == TODAY
     assert payload["telegram_offset"] == 9
+    assert watchdog.pings == 1
 
 
 def test_matrix_forecast_raise_no_write(
@@ -383,18 +403,21 @@ def test_matrix_forecast_raise_no_write(
     forecast = FakeForecast(error=RuntimeError("forecast failed"))
     notifier = RecordingNotifier()
     inbox = FakeAckInbox()
+    watchdog = RecordingWatchdog()
     code, payload = _run_check(
         tmp_path,
         monkeypatch,
         forecast=forecast,
         notifier=notifier,
         inbox=inbox,
+        watchdog=watchdog,
     )
     assert code != 0
     assert notifier.calls == []
     assert inbox.polls == []
     assert payload is None
     assert not (tmp_path / "data" / "state.json").exists()
+    assert watchdog.pings == 0
 
 
 def test_matrix_poll_raise_no_write(
@@ -714,6 +737,7 @@ def test_corrupt_state_json_no_telegram_no_write(
     forecast = FakeForecast(series=[_risk_hour()])
     notifier = RecordingNotifier()
     inbox = FakeAckInbox()
+    watchdog = RecordingWatchdog()
     code = check_main(
         ["check"],
         config_store=JsonConfigStore(tmp_path),
@@ -722,12 +746,133 @@ def test_corrupt_state_json_no_telegram_no_write(
         notifier=notifier,
         inbox=inbox,
         clock=FakeClock(GOLDEN_NOW),
+        watchdog=watchdog,
     )
     assert code != 0
     assert forecast.calls == []
     assert notifier.calls == []
     assert inbox.polls == []
     assert state_path.read_text(encoding="utf-8") == original
+    assert watchdog.pings == 0
+
+
+def test_invalid_present_state_no_write_no_ping(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _set_secrets(monkeypatch)
+    JsonConfigStore(tmp_path).write(**_user_doc())
+    state_path = tmp_path / "data" / "state.json"
+    state_path.parent.mkdir()
+    original = json.dumps({"season": "monitoring"})
+    state_path.write_text(original, encoding="utf-8")
+    forecast = FakeForecast(series=[_risk_hour()])
+    notifier = RecordingNotifier()
+    inbox = FakeAckInbox()
+    watchdog = RecordingWatchdog()
+    code = check_main(
+        ["check"],
+        config_store=JsonConfigStore(tmp_path),
+        state_store=JsonStateStore(tmp_path),
+        forecast=forecast,
+        notifier=notifier,
+        inbox=inbox,
+        clock=FakeClock(GOLDEN_NOW),
+        watchdog=watchdog,
+    )
+    assert code != 0
+    assert forecast.calls == []
+    assert notifier.calls == []
+    assert inbox.polls == []
+    assert state_path.read_text(encoding="utf-8") == original
+    assert watchdog.pings == 0
+
+
+def test_ping_transport_error_still_writes_and_exits_0(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    forecast = FakeForecast(series=[_risk_hour()])
+    notifier = RecordingNotifier()
+    inbox = FakeAckInbox()
+    watchdog = RecordingWatchdog(error=OSError("ping failed"))
+    code, payload = _run_check(
+        tmp_path,
+        monkeypatch,
+        forecast=forecast,
+        notifier=notifier,
+        inbox=inbox,
+        watchdog=watchdog,
+    )
+    assert code == 0
+    assert payload is not None
+    assert payload["alerted_windows"] == [24]
+    assert watchdog.pings == 1
+
+
+def test_blank_ping_url_skips_http_still_writes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("HEALTHCHECKS_PING_URL", "   ")
+
+    def boom(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("blank ping URL must not open HTTP")
+
+    monkeypatch.setattr("urllib.request.urlopen", boom)
+    forecast = FakeForecast(series=[_risk_hour()])
+    notifier = RecordingNotifier()
+    inbox = FakeAckInbox()
+    _set_secrets(monkeypatch)
+    code = check_main(
+        ["check"],
+        config_store=_write_user(tmp_path),
+        state_store=JsonStateStore(tmp_path),
+        forecast=forecast,
+        notifier=notifier,
+        inbox=inbox,
+        clock=FakeClock(GOLDEN_NOW),
+    )
+    assert code == 0
+    assert (tmp_path / "data" / "state.json").is_file()
+
+
+def test_default_watchdog_pings_env_url(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ping_url = "https://hc-ping.com/test-uuid"
+    monkeypatch.setenv("HEALTHCHECKS_PING_URL", ping_url)
+    captured: dict[str, object] = {}
+
+    class _FakeHTTPResponse:
+        def __init__(self, body: bytes) -> None:
+            self._body = body
+
+        def read(self) -> bytes:
+            return self._body
+
+        def __enter__(self) -> _FakeHTTPResponse:
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+    def fake_urlopen(req: object, timeout: float | None = None) -> _FakeHTTPResponse:
+        captured["url"] = getattr(req, "full_url")
+        captured["timeout"] = timeout
+        return _FakeHTTPResponse(b"OK")
+
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+    _set_secrets(monkeypatch)
+    code = check_main(
+        ["check"],
+        config_store=_write_user(tmp_path),
+        state_store=JsonStateStore(tmp_path),
+        forecast=FakeForecast(series=[_warm_hour()]),
+        notifier=RecordingNotifier(),
+        inbox=FakeAckInbox(),
+        clock=FakeClock(GOLDEN_NOW),
+    )
+    assert code == 0
+    assert captured["url"] == ping_url
+    assert captured["timeout"] == 15
 
 
 def test_setup_still_rejects_check_and_does_not_write_state(

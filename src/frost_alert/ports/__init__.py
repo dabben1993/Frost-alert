@@ -25,7 +25,7 @@ class AckInbox(Protocol):
 
 
 class Watchdog(Protocol):
-    pass
+    def ping(self) -> None: ...
 
 
 class ConfigStore(Protocol):

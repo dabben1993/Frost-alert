@@ -24,3 +24,9 @@ jobs:
           version: "0.12"
       - run: uv sync --frozen
       - run: uv run frost-alert check
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/state.json
+          git commit -m "chore: persist frost-alert state"
+          git push

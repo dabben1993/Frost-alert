@@ -66,7 +66,8 @@ class FakeAckInbox:
 
 
 class FakeWatchdog:
-    pass
+    def ping(self) -> None:
+        return None
 
 
 class FakeConfigStore:

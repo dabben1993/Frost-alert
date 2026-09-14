@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from frost_alert.domain.classify import ForecastHour
+from frost_alert.domain.classify import Classification, ForecastHour
 
 
 class ForecastSource(Protocol):
@@ -8,7 +8,15 @@ class ForecastSource(Protocol):
 
 
 class Notifier(Protocol):
-    pass
+    def send_frost_alert(
+        self,
+        *,
+        classification: Classification,
+        place_name: str,
+        threshold_c: int | float,
+        scale: str,
+        timezone: str,
+    ) -> None: ...
 
 
 class AckInbox(Protocol):

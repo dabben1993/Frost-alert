@@ -32,6 +32,10 @@ class JsonConfigStore:
         }
         path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
+    def load(self) -> dict:
+        path = self._root / "config" / "user.json"
+        return json.loads(path.read_text(encoding="utf-8"))
+
 
 def _json_number(value: float) -> int | float:
     if value == int(value):

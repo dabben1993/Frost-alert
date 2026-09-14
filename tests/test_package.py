@@ -210,4 +210,4 @@ def test_banned_http_and_web_framework_deps_absent() -> None:
 
 def test_frost_alert_console_script_entry_point() -> None:
     [ep] = importlib.metadata.entry_points(group="console_scripts", name="frost-alert")
-    assert ep.value == "frost_alert.entrypoints.setup:main"
+    assert ep.value == "frost_alert.entrypoints.cli:main"

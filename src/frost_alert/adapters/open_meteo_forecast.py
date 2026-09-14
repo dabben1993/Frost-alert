@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 import json
+import math
 import urllib.error
 import urllib.parse
-import urllib.request
 from datetime import UTC, datetime, timedelta
 
+from frost_alert.adapters.http import get_json
 from frost_alert.domain.classify import ForecastHour
 
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
-USER_AGENT = "Frost-alert (https://github.com/dabben1993/Frost-alert)"
-TIMEOUT_S = 15
 _HOUR = timedelta(hours=1)
 
 
@@ -28,14 +27,8 @@ class OpenMeteoForecast:
                 "timezone": "UTC",
             }
         )
-        request = urllib.request.Request(
-            f"{FORECAST_URL}?{query}",
-            headers={"User-Agent": USER_AGENT},
-        )
         try:
-            with urllib.request.urlopen(request, timeout=TIMEOUT_S) as response:
-                raw = response.read().decode("utf-8")
-            payload = json.loads(raw)
+            payload = get_json(f"{FORECAST_URL}?{query}")
         except (
             urllib.error.URLError,
             TimeoutError,
@@ -92,4 +85,8 @@ def _parse_utc(value: object) -> datetime:
 
 
 def _is_number(value: object) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool)
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+    )

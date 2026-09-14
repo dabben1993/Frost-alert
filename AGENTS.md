@@ -34,3 +34,7 @@ Single-user frost-warning automation for overwintering bonsai. CPython 3.13, uv,
 
 - Install: `uv sync`
 - Tests: `uv run pytest`
+
+## Operator state
+
+- This GitHub repo already has Actions secrets `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, and `HEALTHCHECKS_PING_URL` (values never in git). Live `workflow_dispatch` is an operator check after `config/user.json` is committed; unit tests still use fake ports and must not open sockets.

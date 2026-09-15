@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 09-13-2026 14:35
-last_updated: 09-14-2026 23:15
+last_updated: 09-15-2026 13:12
 project: Frost-alert
 project_key: NOKEY
 tracking_system: file-system
@@ -53,7 +53,7 @@ development_status:
   3-1-schedule-the-check-on-github-actions: done
   3-2-fail-over-to-met-norway-when-open-meteo-is-down: done
   3-3-persist-state-and-ping-the-watchdog: done
-  3-4-keep-the-job-healthy-while-the-season-is-suspended: backlog
+  3-4-keep-the-job-healthy-while-the-season-is-suspended: done
   3-5-document-how-to-operate-the-watch: backlog
   epic-3-retrospective: optional
 action_items:

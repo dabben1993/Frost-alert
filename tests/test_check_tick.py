@@ -318,12 +318,13 @@ def test_matrix_absent_risk_skips_send(
     assert payload["alerted_windows"] == [24]
 
 
-def test_matrix_suspended_polls_and_writes(
+def test_matrix_idle_suspended_skips_forecast_and_pings(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     forecast = FakeForecast(series=[_risk_hour()])
     notifier = RecordingNotifier()
-    inbox = FakeAckInbox(intents=["out"], new_offset=11)
+    inbox = FakeAckInbox(intents=[], new_offset=5)
+    watchdog = RecordingWatchdog()
     code, payload = _run_check(
         tmp_path,
         monkeypatch,
@@ -335,6 +336,39 @@ def test_matrix_suspended_polls_and_writes(
         alerted_windows=[24, 12],
         telegram_offset=5,
         write_state=True,
+        watchdog=watchdog,
+    )
+    assert code == 0
+    assert forecast.calls == []
+    assert notifier.calls == []
+    assert inbox.polls == [5]
+    assert payload is not None
+    assert payload["season"] == "suspended"
+    assert payload["event_date"] == TODAY
+    assert payload["alerted_windows"] == [24, 12]
+    assert payload["telegram_offset"] == 5
+    assert watchdog.pings == 1
+
+
+def test_matrix_suspended_polls_and_writes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    forecast = FakeForecast(series=[_risk_hour()])
+    notifier = RecordingNotifier()
+    inbox = FakeAckInbox(intents=["out"], new_offset=11)
+    watchdog = RecordingWatchdog()
+    code, payload = _run_check(
+        tmp_path,
+        monkeypatch,
+        forecast=forecast,
+        notifier=notifier,
+        inbox=inbox,
+        season="suspended",
+        event_date=TODAY,
+        alerted_windows=[24, 12],
+        telegram_offset=5,
+        write_state=True,
+        watchdog=watchdog,
     )
     assert code == 0
     assert forecast.calls == []
@@ -345,6 +379,53 @@ def test_matrix_suspended_polls_and_writes(
     assert payload["event_date"] is None
     assert payload["alerted_windows"] == []
     assert payload["telegram_offset"] == 11
+    assert watchdog.pings == 1
+
+
+def test_suspended_out_then_same_day_can_send(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    first_forecast = FakeForecast(series=[_risk_hour()])
+    first_notifier = RecordingNotifier()
+    first_code, first_payload = _run_check(
+        tmp_path,
+        monkeypatch,
+        forecast=first_forecast,
+        notifier=first_notifier,
+        inbox=FakeAckInbox(intents=["out"], new_offset=11),
+        season="suspended",
+        event_date=TODAY,
+        alerted_windows=[24, 12],
+        telegram_offset=5,
+        write_state=True,
+        watchdog=RecordingWatchdog(),
+    )
+    assert first_code == 0
+    assert first_forecast.calls == []
+    assert first_notifier.calls == []
+    assert first_payload is not None
+    assert first_payload["season"] == "monitoring"
+    assert first_payload["event_date"] is None
+    assert first_payload["alerted_windows"] == []
+
+    second_forecast = FakeForecast(series=[_risk_hour()])
+    second_notifier = RecordingNotifier()
+    second_code, second_payload = _run_check(
+        tmp_path,
+        monkeypatch,
+        forecast=second_forecast,
+        notifier=second_notifier,
+        inbox=FakeAckInbox(intents=[], new_offset=11),
+        write_state=False,
+        watchdog=RecordingWatchdog(),
+    )
+    assert second_code == 0
+    assert second_forecast.calls == [(LAT, LON)]
+    assert len(second_notifier.calls) == 1
+    assert second_payload is not None
+    assert second_payload["season"] == "monitoring"
+    assert second_payload["event_date"] == TODAY
+    assert second_payload["alerted_windows"] == [24]
 
 
 def test_matrix_new_event_resets_windows(

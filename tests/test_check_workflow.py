@@ -181,7 +181,7 @@ def test_scheduled_job_pins_runner_and_invokes_check() -> None:
     uses = _uses_with(text)
     assert "actions/checkout@v7" in uses
     assert uses["actions/setup-python@v7"]["python-version"] == "3.13"
-    assert uses["astral-sh/setup-uv@v10"]["version"] == "0.12"
+    assert uses["astral-sh/setup-uv@v10.0.1"]["version"] == "0.12"
     _assert_sync_before_check(_job_run_commands(text))
 
 

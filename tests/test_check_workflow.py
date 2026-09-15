@@ -198,13 +198,24 @@ def test_secrets_mapped_from_github_secrets_only() -> None:
     assert token is None, f"secret-like value committed: {token.group(0)!r}"
 
 
-def test_contents_write_without_git_commit_or_push() -> None:
+def test_contents_write_commits_state_without_curl() -> None:
     text = _workflow_text()
     permissions = _mapping_after(text, "permissions:")
     assert permissions["contents"] == "write"
     active = _active_text(text)
-    assert re.search(r"\bgit\s+commit\b", active) is None
-    assert re.search(r"\bgit\s+push\b", active) is None
+    assert "git add data/state.json" in active
+    assert re.search(
+        r"""git\s+commit\s+-m\s+['\"]chore: persist frost-alert state['\"]""",
+        active,
+    )
+    assert re.search(r"\bgit\s+push\b", active)
+    assert "github-actions[bot]" in active
+    assert re.search(r"\bcurl\b", active) is None
+    assert "[skip ci]" not in active
+    assert "git add config/user.json" not in active
+    check_at = active.find("uv run frost-alert check")
+    add_at = active.find("git add data/state.json")
+    assert 0 <= check_at < add_at
 
 
 def test_late_run_still_invokes_check_without_naming_windows() -> None:

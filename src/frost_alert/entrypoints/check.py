@@ -5,6 +5,7 @@ import os
 from collections.abc import Sequence
 
 from frost_alert.adapters.forecast_failover import FailoverForecast
+from frost_alert.adapters.healthchecks_watchdog import HealthchecksWatchdog
 from frost_alert.adapters.json_config_store import JsonConfigStore
 from frost_alert.adapters.json_state_store import JsonStateStore
 from frost_alert.adapters.met_norway_forecast import MetNorwayForecast
@@ -13,7 +14,15 @@ from frost_alert.adapters.system_clock import SystemClock
 from frost_alert.adapters.telegram_ack_inbox import TelegramAckInbox
 from frost_alert.adapters.telegram_notifier import TelegramNotifier
 from frost_alert.check_tick import run_check_tick
-from frost_alert.ports import AckInbox, Clock, ConfigStore, ForecastSource, Notifier, StateStore
+from frost_alert.ports import (
+    AckInbox,
+    Clock,
+    ConfigStore,
+    ForecastSource,
+    Notifier,
+    StateStore,
+    Watchdog,
+)
 
 
 def main(
@@ -25,6 +34,7 @@ def main(
     notifier: Notifier | None = None,
     inbox: AckInbox | None = None,
     clock: Clock | None = None,
+    watchdog: Watchdog | None = None,
 ) -> int:
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_id = os.environ.get("TELEGRAM_CHAT_ID")
@@ -36,7 +46,13 @@ def main(
     try:
         config = store.load()
         state = persist.load()
-    except (FileNotFoundError, OSError, json.JSONDecodeError, UnicodeDecodeError):
+    except (
+        FileNotFoundError,
+        OSError,
+        json.JSONDecodeError,
+        UnicodeDecodeError,
+        ValueError,
+    ):
         return 1
     source = (
         FailoverForecast(
@@ -76,4 +92,13 @@ def main(
         alerted_windows=marked,
         telegram_offset=int(result["telegram_offset"]),
     )
+    dog = (
+        HealthchecksWatchdog(os.environ.get("HEALTHCHECKS_PING_URL", ""))
+        if watchdog is None
+        else watchdog
+    )
+    try:
+        dog.ping()
+    except Exception:
+        pass
     return 0

@@ -54,7 +54,7 @@ development_status:
   3-2-fail-over-to-met-norway-when-open-meteo-is-down: done
   3-3-persist-state-and-ping-the-watchdog: done
   3-4-keep-the-job-healthy-while-the-season-is-suspended: done
-  3-5-document-how-to-operate-the-watch: review
+  3-5-document-how-to-operate-the-watch: done
   epic-3-retrospective: optional
 action_items:
   - id: "epic-1-retro-item-1-reconcile-story-1-2-verification-with-1"

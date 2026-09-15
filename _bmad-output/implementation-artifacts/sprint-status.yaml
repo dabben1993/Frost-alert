@@ -52,7 +52,7 @@ development_status:
   epic-3: in-progress
   3-1-schedule-the-check-on-github-actions: done
   3-2-fail-over-to-met-norway-when-open-meteo-is-down: done
-  3-3-persist-state-and-ping-the-watchdog: review
+  3-3-persist-state-and-ping-the-watchdog: done
   3-4-keep-the-job-healthy-while-the-season-is-suspended: backlog
   3-5-document-how-to-operate-the-watch: backlog
   epic-3-retrospective: optional

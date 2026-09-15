@@ -15,7 +15,7 @@ context:
 
 **Problem:** There is no operator README. A bonsai owner or a friend cloning the repo cannot set secrets, the healthchecks.io window, or Android delivery without discovering a silent miss after a frost night.
 
-**Approach:** Add a root `README.md` operator section covering GitHub Secrets (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `HEALTHCHECKS_PING_URL`), healthchecks.io period 6h and grace ~6h beside the ping-URL secret, leaving Actions workflow-failure email on, whitelisting Telegram from Android battery optimization, public GitHub Free (or Pro if private), and that `schedule` runs only on the default branch. Do not change runtime code. Do not add README tests.
+**Approach:** Add a root `README.md` that a clone-and-run operator can follow: `uv sync`, `uv run frost-alert setup`, commit `config/user.json`, GitHub Secrets (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `HEALTHCHECKS_PING_URL`), healthchecks.io period 6h and grace ~6h beside the ping-URL secret, leaving Actions workflow-failure email on, whitelisting Telegram from Android battery optimization, public GitHub Free (or Pro if private), and that `schedule` runs only on the default branch. Do not change runtime code. Do not add README tests.
 
 </frozen-after-approval>
 
@@ -28,6 +28,8 @@ Red: `tests/test_readme.py` — 7 FileNotFoundError on `README.md`. Green: root 
 Hunter patches: own GitHub repo (not local clone); healthchecks.io notify channel; period/grace set on the check not as extra secrets; 60-day public `schedule` disable + state commits as activity.
 
 Human renegotiation: dropped `tests/test_readme.py`. README is read, not phrase-locked. `uv run pytest` — 245 passed.
+
+Human: setup is required. README now has `uv sync`, `uv run frost-alert setup`, commit `config/user.json`, and a `workflow_dispatch` check after secrets.
 
 ## Review Triage Log
 

@@ -1,11 +1,9 @@
 {
   "season": "monitoring",
-  "event_date": "2026-11-06",
+  "event_date": "2026-11-07",
   "alerted_windows": [
-    24,
-    12,
     6
   ],
   "telegram_offset": 329109620,
-  "updated_at": "2026-11-06T13:35:22Z"
+  "updated_at": "2026-11-06T22:37:23Z"
 }
